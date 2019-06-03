@@ -3,59 +3,49 @@
 #include <stdlib.h>
 #include <pkcs11.h>
 
-#include "macrologger.h"
+#include "config.h"
 
 typedef void (*CK_OBJECT_HANDLER)(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject);
 
-void notify(CK_SESSION_HANDLE session, CK_NOTIFICATION event, CK_VOID_PTR app_ptr) {
-    printf("happens");
-}
-
-void login(
+int primus_login(
     CK_SESSION_HANDLE_PTR phSession,
     unsigned const char *pin,
-    unsigned const long ulPinLen
+    unsigned const long ulPinLen,
+    CK_NOTIFY notify
 ) {
-    int rv;
-    /* rv = C_Initialize(NULL); */
-    /* rv = C_InitializeOpenSSL("/usr/local/primus/etc/primus.cfg"); */
-    rv = C_InitializeWithLogFile(NULL, "/usr/local/primus/etc/primus.cfg");
-    assert(rv == CKR_OK && "initialize");
-
-    rv = C_OpenSession(
-        0,
-        CKF_SERIAL_SESSION | CKF_RW_SESSION,
-        NULL,
-        (CK_NOTIFY) notify,
-        phSession
-    );
-    assert(rv == CKR_OK && "open session");
-
-    rv = C_Login(*phSession, CKU_USER, (CK_UTF8CHAR_PTR) pin, ulPinLen);
-    assert(rv == CKR_OK && "login");
+    return C_InitializeWithLogFile(NULL, PRIMUS_CFG) &&
+        C_OpenSession(
+            0,
+            CKF_SERIAL_SESSION | CKF_RW_SESSION,
+            NULL,
+            notify,
+            phSession
+        ) &&
+        C_Login(*phSession, CKU_USER, (CK_UTF8CHAR_PTR) pin, ulPinLen);
 }
 
-void logout(
+int primus_logout(
     CK_SESSION_HANDLE hSession
 ) {
-    int rv = 0;
-    rv |= C_Logout(hSession);
-    rv |= C_CloseSession(hSession);
-    rv |= C_Finalize(NULL);
-    assert(rv == CKR_OK && "logout");
+    return C_Logout(hSession) &&
+        C_CloseSession(hSession) &&
+        C_Finalize(NULL);
 }
 
 #ifdef UNIT_TESTS
 #include "CuTest.h"
-
+#include "macrologger.h"
 #include "secrets.h"
 
-void TestLogin(CuTest* tc) {
+void TestPrimusLogin(CuTest* tc) {
     CK_SESSION_HANDLE hSession;
 
-    login(&hSession, (unsigned char *) SECRET_PIN, SECRET_PIN_LEN);
-    LOG_DEBUG("logged in");
-    logout(hSession);
+    CuAssertIntEquals(
+        tc,
+        primus_login(&hSession, (unsigned char *) SECRET_PIN, SECRET_PIN_LEN, NULL),
+        CKR_OK
+    );
+    CuAssertIntEquals(tc, primus_logout(hSession), CKR_OK);
 }
 
 #endif // UNIT_TESTS
