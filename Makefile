@@ -47,7 +47,10 @@ build-archive: $(ARCHIVE)
 check: $(TEST_OBJECT)
 	@$(TEST_OBJECT)
 
-$(OBJ)/%.o: $(SRC)/%.c Makefile
+watch:
+	$(ROOT)/.watch
+
+$(OBJ)/%.o: $(SRC)/%.c $(HEADERS) Makefile
 	$(CC) $(CFLAGS) -o $@ -c $< $(LDFLAGS)
 
 $(SHARED): $(OBJECTS)
@@ -73,8 +76,8 @@ clean:
 	rm -f $(TEST_SOURCE)
 	rm -f $(TEST_OBJECT)
 
-$(TEST_SOURCE): $(SOURCES)
+$(TEST_SOURCE): $(SOURCES) $(HEADERS)
 	bash cutest/make-tests.sh > $(TEST_SOURCE)
 
-$(TEST_OBJECT): $(TEST_SOURCE) $(SOURCES) $(CUTEST_SOURCE) Makefile
+$(TEST_OBJECT): $(TEST_SOURCE) Makefile
 	$(CC) $(CFLAGS) -o $@ $< $(SOURCES) $(CUTEST_SOURCE) $(LDFLAGS) -I$(CUTEST) -DUNIT_TESTS=1 -DLOG_LEVEL=$(LOG_LEVEL)

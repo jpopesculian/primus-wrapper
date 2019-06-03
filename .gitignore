@@ -1,3 +1,5 @@
 *.o
+*.a
+*.so
 secrets.h
 primus_wrapper_test.c
