@@ -1,7 +1,8 @@
-ifeq ($(origin CC),default)
-	CC = gcc
-endif
+# ifeq ($(origin CC),default)
+# 	CC = gcc
+# endif
 AR := ar
+SH ?= bash
 
 LOG_LEVEL ?= 0
 TEST_LOG_LEVEL ?= 3
@@ -10,11 +11,13 @@ ROOT := .
 PRIMUS := /usr/local/primus
 OBJ := $(ROOT)
 SRC := $(ROOT)
+CUTEST := $(ROOT)/cutest
+CONFIG := $(ROOT)/config
+
 GLOBAL_LIB = /usr/local/lib
 GLOBAL_INCLUDE = /usr/local/include
 INSTALL_LIB ?= $(GLOBAL_LIB)
 INSTALL_INCLUDE ?= $(GLOBAL_INCLUDE)
-CUTEST := $(ROOT)/cutest
 
 NAME := primus_wrapper
 SOURCES := $(wildcard $(SRC)/*.c)
@@ -32,7 +35,7 @@ CUTEST_SOURCE := $(CUTEST)/CuTest.c
 SHARED := $(OBJ)/lib$(NAME).so
 ARCHIVE := $(OBJ)/lib$(NAME).a
 
-CFLAGS=-Wall -I$(GLOBAL_INCLUDE) -I$(ROOT) -I$(PRIMUS)/include -fPIC
+CFLAGS=-Wall -I$(GLOBAL_INCLUDE) -I$(ROOT) -I$(CONFIG) -I$(CUTEST) -I$(PRIMUS)/include -fPIC
 LDFLAGS=-L$(PRIMUS)/lib -leprimus -lprimusP11
 
 .PHONY:all clean watch
@@ -46,7 +49,7 @@ build-shared: $(SHARED)
 build-archive: $(ARCHIVE)
 
 check: $(TEST_OBJECT)
-	@$(TEST_OBJECT)
+	@LD_LIBRARY_PATH=$(PRIMUS)/lib:$(LD_LIBRARY_PATH) $(TEST_OBJECT)
 
 watch:
 	$(ROOT)/.watch
@@ -78,7 +81,7 @@ clean:
 	rm -f $(TEST_OBJECT)
 
 $(TEST_SOURCE): $(SOURCES) $(HEADERS)
-	bash cutest/make-tests.sh > $(TEST_SOURCE)
+	$(SH) cutest/make-tests.sh > $(TEST_SOURCE)
 
 $(TEST_OBJECT): $(TEST_SOURCE) Makefile
-	$(CC) $(CFLAGS) -o $@ $< $(SOURCES) $(CUTEST_SOURCE) $(LDFLAGS) -I$(CUTEST) -DUNIT_TESTS=1 -DLOG_LEVEL=$(TEST_LOG_LEVEL)
+	$(CC) $(CFLAGS) -o $@ $< $(SOURCES) $(CUTEST_SOURCE) $(LDFLAGS) -DUNIT_TESTS=1 -DLOG_LEVEL=$(TEST_LOG_LEVEL)

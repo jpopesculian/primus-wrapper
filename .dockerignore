@@ -1,0 +1,8 @@
+*.o
+*.a
+*.so
+
+primus_wrapper_test.c
+
+docker/Dockerfile
+docker/Makefile
