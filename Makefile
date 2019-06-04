@@ -3,7 +3,8 @@ ifeq ($(origin CC),default)
 endif
 AR := ar
 
-LOG_LEVEL ?= 3
+LOG_LEVEL ?= 0
+TEST_LOG_LEVEL ?= 3
 
 ROOT := .
 PRIMUS := /usr/local/primus
@@ -51,7 +52,7 @@ watch:
 	$(ROOT)/.watch
 
 $(OBJ)/%.o: $(SRC)/%.c $(HEADERS) Makefile
-	$(CC) $(CFLAGS) -o $@ -c $< $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ -c $< $(LDFLAGS) -DLOG_LEVEL=$(LOG_LEVEL)
 
 $(SHARED): $(OBJECTS)
 	$(CC) -shared -o $@ $<
@@ -80,4 +81,4 @@ $(TEST_SOURCE): $(SOURCES) $(HEADERS)
 	bash cutest/make-tests.sh > $(TEST_SOURCE)
 
 $(TEST_OBJECT): $(TEST_SOURCE) Makefile
-	$(CC) $(CFLAGS) -o $@ $< $(SOURCES) $(CUTEST_SOURCE) $(LDFLAGS) -I$(CUTEST) -DUNIT_TESTS=1 -DLOG_LEVEL=$(LOG_LEVEL)
+	$(CC) $(CFLAGS) -o $@ $< $(SOURCES) $(CUTEST_SOURCE) $(LDFLAGS) -I$(CUTEST) -DUNIT_TESTS=1 -DLOG_LEVEL=$(TEST_LOG_LEVEL)
