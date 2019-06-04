@@ -6,3 +6,4 @@ primus_wrapper_test.c
 
 config/secrets.h
 docker/primus.cfg
+docker/secrets.cfg

@@ -11,7 +11,7 @@ void handleObj(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject) {
     LOG_DEBUG("happens");
 }
 
-void TestWrappedKeyCreate(CuTest* tc) {
+void _TestWrappedKeyCreate(CuTest* tc) {
     CK_SESSION_HANDLE hSession;
 
     CuAssertIntEquals(tc, primusDefaultLogin(&hSession), CKR_OK);

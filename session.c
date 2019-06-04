@@ -94,6 +94,7 @@ int primusLogout(CK_SESSION_HANDLE hSession) {
 void TestPrimusLogin(CuTest* tc) {
     CK_SESSION_HANDLE hSession;
 
+/*
     CuAssertIntEquals(tc, CKR_OK, primusLogin(
         &hSession,
         (unsigned char *) PRIMUS_SECRET_PIN,
@@ -109,6 +110,7 @@ void TestPrimusLogin(CuTest* tc) {
         PRIMUS_SECRET_PIN_LEN
     ));
     CuAssertIntEquals(tc, CKR_OK, primusLogout(hSession));
+*/
     CuAssertIntEquals(tc, CKR_OK, primusDefaultLogin(&hSession));
     CuAssertIntEquals(tc, CKR_OK, primusLogout(hSession));
 }

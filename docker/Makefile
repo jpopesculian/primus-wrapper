@@ -11,4 +11,4 @@ build: $(FILE) Makefile
 	docker build -t $(TAG_NAME) -f $(FILE) $(CONTEXT)
 
 run:
-	docker run --device=$(SGX_DEV) --rm -it $(TAG_NAME)
+	docker run --device=$(SGX_DEV) --network=host --rm -it $(TAG_NAME)
